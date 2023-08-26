@@ -1,9 +1,9 @@
 package dpfm_api_output_formatter
 
 import (
-	dpfm_api_input_reader "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Input_Reader"
-	dpfm_api_processing_formatter "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Processing_Formatter"
-	"data-platform-api-delivery-document-creates-rmq-kube/sub_func_complementer"
+	dpfm_api_input_reader "data-platform-api-operations-creates-rmq-kube/DPFM_API_Input_Reader"
+	dpfm_api_processing_formatter "data-platform-api-operations-creates-rmq-kube/DPFM_API_Processing_Formatter"
+	"data-platform-api-operations-creates-rmq-kube/sub_func_complementer"
 	"encoding/json"
 
 	"golang.org/x/xerrors"
@@ -39,34 +39,34 @@ func ConvertToItemCreates(subfuncSDC *sub_func_complementer.SDC) (*[]Item, error
 	return &items, nil
 }
 
-func ConvertToPartnerCreates(subfuncSDC *sub_func_complementer.SDC) (*[]Partner, error) {
-	partners := make([]Partner, 0)
+func ConvertToItemOperationCreates(subfuncSDC *sub_func_complementer.SDC) (*[]ItemOperation, error) {
+	itemOperations := make([]ItemOperation, 0)
 
-	for _, data := range *subfuncSDC.Message.Partner {
-		partner, err := TypeConverter[*Partner](data)
+	for _, data := range *subfuncSDC.Message.ItemOperation {
+		itemOperation, err := TypeConverter[*ItemOperation](data)
 		if err != nil {
 			return nil, err
 		}
 
-		partners = append(partners, *partner)
+		itemOperations = append(itemOperations, *itemOperation)
 	}
 
-	return &partners, nil
+	return &itemOperations, nil
 }
 
-func ConvertToAddressCreates(subfuncSDC *sub_func_complementer.SDC) (*[]Address, error) {
-	addresses := make([]Address, 0)
+func ConvertToItemOperationComponentCreates(subfuncSDC *sub_func_complementer.SDC) (*[]ItemOperationComponent, error) {
+	itemOperationComponents := make([]ItemOperationComponent, 0)
 
-	for _, data := range *subfuncSDC.Message.Address {
-		address, err := TypeConverter[*Address](data)
+	for _, data := range *subfuncSDC.Message.ItemOperationComponent {
+		itemOperationComponent, err := TypeConverter[*ItemOperationComponent](data)
 		if err != nil {
 			return nil, err
 		}
 
-		addresses = append(addresses, *address)
+		itemOperationComponents = append(itemOperationComponents, *itemOperationComponent)
 	}
 
-	return &addresses, nil
+	return &itemOperationComponents, nil
 }
 
 func ConvertToHeaderUpdates(headerData dpfm_api_input_reader.Header) (*[]Header, error) {
@@ -97,35 +97,36 @@ func ConvertToItemUpdates(itemUpdates *[]dpfm_api_processing_formatter.ItemUpdat
 	return &items, nil
 }
 
-func ConvertToPartnerUpdates(partnerUpdates *[]dpfm_api_processing_formatter.PartnerUpdates) (*[]Partner, error) {
-	partners := make([]Partner, 0)
+func ConvertToItemOperationUpdates(itemOperationUpdates *[]dpfm_api_processing_formatter.ItemOperationUpdates) (*[]ItemOperation, error) {
+	itemOperations := make([]ItemOperation, 0)
 
-	for _, data := range *partnerUpdates {
-		partner, err := TypeConverter[*Partner](data)
+	for _, data := range *itemOperationUpdates {
+		itemOperation, err := TypeConverter[*ItemOperation](data)
 		if err != nil {
 			return nil, err
 		}
 
-		partners = append(partners, *partner)
+		itemOperations = append(itemOperations, *itemOperation)
 	}
 
-	return &partners, nil
+	return &itemOperations, nil
 }
 
-func ConvertToAddressUpdates(addressUpdates *[]dpfm_api_processing_formatter.AddressUpdates) (*[]Address, error) {
-	addresses := make([]Address, 0)
+func ConvertToItemOperationComponentUpdates(itemOperationComponentUpdates *[]dpfm_api_processing_formatter.ItemOperationComponentUpdates) (*[]ItemOperationComponent, error) {
+	itemOperationComponents := make([]ItemOperationComponent, 0)
 
-	for _, data := range *addressUpdates {
-		address, err := TypeConverter[*Address](data)
+	for _, data := range *itemOperationComponentUpdates {
+		itemOperationComponent, err := TypeConverter[*ItemOperationComponent](data)
 		if err != nil {
 			return nil, err
 		}
 
-		addresses = append(addresses, *address)
+		itemOperationComponents = append(itemOperationComponents, *itemOperationComponent)
 	}
 
-	return &addresses, nil
+	return &itemOperationComponents, nil
 }
+
 
 func TypeConverter[T any](data interface{}) (T, error) {
 	var dist T

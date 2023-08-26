@@ -9,16 +9,16 @@ WORKDIR /go/src/github.com/latonaio
 
 COPY . .
 RUN go mod download
-RUN go build -o data-platform-api-delivery-document-creates-rmq-kube ./
+RUN go build -o data-platform-api-operations-creates-rmq-kube ./
 
 # Runtime Container
 FROM alpine:3.14
 RUN apk add --no-cache libc6-compat
-ENV SERVICE=data-platform-api-delivery-document-creates-rmq-kube \
+ENV SERVICE=data-platform-api-operations-creates-rmq-kube \
     APP_DIR="${AION_HOME}/${POSITION}/${SERVICE}"
 
 WORKDIR ${AION_HOME}
 
-COPY --from=builder /go/src/github.com/latonaio/data-platform-api-delivery-document-creates-rmq-kube .
+COPY --from=builder /go/src/github.com/latonaio/data-platform-api-operations-creates-rmq-kube .
 
-CMD ["./data-platform-api-delivery-document-creates-rmq-kube"]
+CMD ["./data-platform-api-operations-creates-rmq-kube"]

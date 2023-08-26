@@ -2,11 +2,11 @@ package dpfm_api_caller
 
 import (
 	"context"
-	dpfm_api_input_reader "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Input_Reader"
-	dpfm_api_output_formatter "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Output_Formatter"
-	"data-platform-api-delivery-document-creates-rmq-kube/config"
-	"data-platform-api-delivery-document-creates-rmq-kube/existence_conf"
-	"data-platform-api-delivery-document-creates-rmq-kube/sub_func_complementer"
+	dpfm_api_input_reader "data-platform-api-operations-creates-rmq-kube/DPFM_API_Input_Reader"
+	dpfm_api_output_formatter "data-platform-api-operations-creates-rmq-kube/DPFM_API_Output_Formatter"
+	"data-platform-api-operations-creates-rmq-kube/config"
+	"data-platform-api-operations-creates-rmq-kube/existence_conf"
+	"data-platform-api-operations-creates-rmq-kube/sub_func_complementer"
 	"sync"
 	"time"
 
@@ -39,7 +39,7 @@ func NewDPFMAPICaller(
 	}
 }
 
-func (c *DPFMAPICaller) AsyncDeliveryDocumentCreates(
+func (c *DPFMAPICaller) AsyncCreates(
 	accepter []string,
 	input *dpfm_api_input_reader.SDC,
 	output *dpfm_api_output_formatter.SDC,
@@ -148,18 +148,10 @@ func (c *DPFMAPICaller) subfuncProcess(
 			c.headerCreate(mtx, wg, subFuncFin, input, output, subfuncSDC, errs, log)
 		case "Item":
 			c.itemCreate(mtx, wg, subFuncFin, input, output, subfuncSDC, errs, log)
-		case "Partner":
-			if contains(accepter, "Item") {
-				subFuncFin <- nil
-			} else {
-				c.itemCreate(mtx, wg, subFuncFin, input, output, subfuncSDC, errs, log)
-			}
-		case "Address":
-			if contains(accepter, "Item") {
-				subFuncFin <- nil
-			} else {
-				c.itemCreate(mtx, wg, subFuncFin, input, output, subfuncSDC, errs, log)
-			}
+		case "ItemOperation":
+			c.itemOperationCreate(mtx, wg, subFuncFin, input, output, subfuncSDC, errs, log)
+		case "ItemOperationComponent":
+			c.itemOperationComponentCreate(mtx, wg, subFuncFin, input, output, subfuncSDC, errs, log)
 		default:
 			wg.Done()
 		}

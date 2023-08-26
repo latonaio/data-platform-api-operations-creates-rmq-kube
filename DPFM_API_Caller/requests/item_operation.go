@@ -1,34 +1,23 @@
-package dpfm_api_processing_formatter
+package requests
 
-type HeaderUpdates struct {
-	Operations                               int     `json:"Operations"`
-	OperationsText                           string  `json:"OperationsText"`
-	OperationsStatus                         *string `json:"OperationsStatus"`
-	ResponsiblePlannerGroup                  *string `json:"ResponsiblePlannerGroup"`
-	PlainLongText                            *string `json:"PlainLongText"`
-	ValidityStartDate                        *string `json:"ValidityStartDate"`
-	ValidityEndDate                          *string `json:"ValidityEndDate"`
-}
-
-type ItemUpdates struct {
-	Operations                               int      `json:"Operations"`
-	OperationsItem                           int      `json:"OperationsItem"`
-	OperationsText                           string   `json:"OperationsText"`
-	BillOfMaterial                           *int     `json:"BillOfMaterial"`
-	OperationsUnit                           *string  `json:"OperationsUnit"`
-	StandardLotSizeQuantity                  *float32 `json:"StandardLotSizeQuantity"`
-	MinimumLotSizeQuantity                   *float32 `json:"MinimumLotSizeQuantity"`
-	MaximumLotSizeQuantity                   *float32 `json:"MaximumLotSizeQuantity"`
-	PlainLongText                            *string  `json:"PlainLongText"`
-	WorkCenter                               *int     `json:"WorkCenter"`
-	ValidityStartDate                        *string  `json:"ValidityStartDate"`
-	ValidityEndDate                          *string  `json:"ValidityEndDate"`
-}
-
-type ItemOperationUpdates struct {
+type ItemOperation struct {
 	Operations                               int      `json:"Operations"`
 	OperationsItem                           int      `json:"OperationsItem"`
 	OperationID                              int      `json:"OperationID"`
+	OperationType                            string   `json:"OperationType"`
+	SupplyChainRelationshipID                int      `json:"SupplyChainRelationshipID"`
+	SupplyChainRelationshipDeliveryID        int      `json:"SupplyChainRelationshipDeliveryID"`
+	SupplyChainRelationshipDeliveryPlantID   int      `json:"SupplyChainRelationshipDeliveryPlantID"`
+	SupplyChainRelationshipProductionPlantID int      `json:"SupplyChainRelationshipProductionPlantID"`
+	Product                                  string   `json:"Product"`
+	Buyer                                    int      `json:"Buyer"`
+	Seller                                   int      `json:"Seller"`
+	DeliverToParty                           int      `json:"DeliverToParty"`
+	DeliverToPlant                           string   `json:"DeliverToPlant"`
+	DeliverFromParty                         int      `json:"DeliverFromParty"`
+	DeliverFromPlant                         string   `json:"DeliverFromPlant"`
+	ProductionPlantBusinessPartner           int      `json:"ProductionPlantBusinessPartner"`
+	ProductionPlant                          string   `json:"ProductionPlant"`
 	Sequence                                 int      `json:"Sequence"`
 	SequenceText                             *string  `json:"SequenceText"`
 	OperationText                            string   `json:"OperationText"`
@@ -40,6 +29,7 @@ type ItemOperationUpdates struct {
 	MaximumLotSizeQuantity                   *float32 `json:"MaximumLotSizeQuantity"`
 	PlainLongText                            *string  `json:"PlainLongText"`
 	WorkCenter                               *int     `json:"WorkCenter"`
+	CapacityCategory	                     *string  `json:"CapacityCategory"`
 	OperationCostingRelevancyType            *string  `json:"OperationCostingRelevancyType"`
 	OperationSetupType                       *string  `json:"OperationSetupType"`
 	OperationSetupGroupCategory              *string  `json:"OperationSetupGroupCategory"`
@@ -60,14 +50,10 @@ type ItemOperationUpdates struct {
 	StandardDeliveryDuration                 *float32 `json:"StandardDeliveryDuration"`
 	StandardDeliveryDurationUnit             *string  `json:"StandardDeliveryDurationUnit"`
 	StandardOperationScrapPercent            *float32 `json:"StandardOperationScrapPercent"`
-}
-
-type ItemOperationComponentUpdates struct {
-    Operations	                                    int	        `json:"Operations"`
-    OperationsItem	                                int	        `json:"OperationsItem"`
-    OperationID	                                    int	        `json:"OperationID"`
-    BillOfMaterial	                                int	        `json:"BillOfMaterial"`
-    BillOfMaterialItem	                            int	        `json:"BillOfMaterialItem"`
-    ValidityStartDate	                            *string	    `json:"ValidityStartDate"`
-    ValidityEndDate	                                *string	    `json:"ValidityEndDate"`
+	CostElement                              *string  `json:"CostElement"`
+	ValidityStartDate                        *string  `json:"ValidityStartDate"`
+	ValidityEndDate                          *string  `json:"ValidityEndDate"`
+	CreationDate                             string   `json:"CreationDate"`
+	LastChangeDate                           string   `json:"LastChangeDate"`
+	IsMarkedForDeletion                      *bool    `json:"IsMarkedForDeletion"`
 }

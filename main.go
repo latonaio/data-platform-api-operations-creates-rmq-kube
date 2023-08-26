@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
-	dpfm_api_caller "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Caller"
-	dpfm_api_input_reader "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Input_Reader"
-	dpfm_api_output_formatter "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Output_Formatter"
-	"data-platform-api-delivery-document-creates-rmq-kube/config"
-	"data-platform-api-delivery-document-creates-rmq-kube/existence_conf"
-	"data-platform-api-delivery-document-creates-rmq-kube/sub_func_complementer"
+	dpfm_api_caller "data-platform-api-operations-creates-rmq-kube/DPFM_API_Caller"
+	dpfm_api_input_reader "data-platform-api-operations-creates-rmq-kube/DPFM_API_Input_Reader"
+	dpfm_api_output_formatter "data-platform-api-operations-creates-rmq-kube/DPFM_API_Output_Formatter"
+	"data-platform-api-operations-creates-rmq-kube/config"
+	"data-platform-api-operations-creates-rmq-kube/existence_conf"
+	"data-platform-api-operations-creates-rmq-kube/sub_func_complementer"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -88,7 +88,7 @@ func callProcess(rmq *rabbitmq.RabbitmqClient, caller *dpfm_api_caller.DPFMAPICa
 
 	accepter := getAccepter(&input)
 
-	res, errs := caller.AsyncDeliveryDocumentCreates(accepter, &input, &output, l)
+	res, errs := caller.AsyncCreates(accepter, &input, &output, l)
 	if len(errs) != 0 {
 		for _, err := range errs {
 			l.Error(err)
@@ -118,7 +118,10 @@ func getAccepter(input *dpfm_api_input_reader.SDC) []string {
 
 	if accepter[0] == "All" {
 		accepter = []string{
-			"Header", "Item", "Partner", "Address",
+			"Header",
+			"Item",
+			"ItemOperation",
+			"ItemOperationComponent",
 		}
 	}
 	return accepter

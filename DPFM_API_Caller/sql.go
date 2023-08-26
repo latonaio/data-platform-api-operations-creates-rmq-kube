@@ -2,10 +2,10 @@ package dpfm_api_caller
 
 import (
 	"context"
-	dpfm_api_input_reader "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Input_Reader"
-	dpfm_api_output_formatter "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Output_Formatter"
-	dpfm_api_processing_formatter "data-platform-api-delivery-document-creates-rmq-kube/DPFM_API_Processing_Formatter"
-	"data-platform-api-delivery-document-creates-rmq-kube/sub_func_complementer"
+	dpfm_api_input_reader "data-platform-api-operations-creates-rmq-kube/DPFM_API_Input_Reader"
+	dpfm_api_output_formatter "data-platform-api-operations-creates-rmq-kube/DPFM_API_Output_Formatter"
+	dpfm_api_processing_formatter "data-platform-api-operations-creates-rmq-kube/DPFM_API_Processing_Formatter"
+	"data-platform-api-operations-creates-rmq-kube/sub_func_complementer"
 	"sync"
 
 	"github.com/latonaio/golang-logging-library-for-data-platform/logger"
@@ -24,28 +24,28 @@ func (c *DPFMAPICaller) createSqlProcess(
 ) interface{} {
 	var header *[]dpfm_api_output_formatter.Header
 	var item *[]dpfm_api_output_formatter.Item
-	var partner *[]dpfm_api_output_formatter.Partner
-	var address *[]dpfm_api_output_formatter.Address
+	var itemOperation *[]dpfm_api_output_formatter.ItemOperation
+	var itemOperationComponent *[]dpfm_api_output_formatter.ItemOperationComponent
 	for _, fn := range accepter {
 		switch fn {
 		case "Header":
 			header = c.headerCreateSql(nil, mtx, input, output, subfuncSDC, errs, log)
 		case "Item":
 			item = c.itemCreateSql(nil, mtx, input, output, subfuncSDC, errs, log)
-		case "Partner":
-			partner = c.partnerCreateSql(nil, mtx, input, output, subfuncSDC, errs, log)
-		case "Address":
-			address = c.addressCreateSql(nil, mtx, input, output, subfuncSDC, errs, log)
+		case "ItemOperation":
+			itemOperation = c.itemOperationCreateSql(nil, mtx, input, output, subfuncSDC, errs, log)
+		case "ItemOperationComponent":
+			itemOperationComponent = c.itemOperationComponentCreateSql(nil, mtx, input, output, subfuncSDC, errs, log)
 		default:
 
 		}
 	}
 
 	data := &dpfm_api_output_formatter.Message{
-		Header:  header,
-		Item:    item,
-		Partner: partner,
-		Address: address,
+		Header:  					header,
+		Item:    					item,
+		ItemOperation:				itemOperation,
+		ItemOperationComponent:		itemOperationComponent,
 	}
 
 	return data
@@ -62,28 +62,28 @@ func (c *DPFMAPICaller) updateSqlProcess(
 ) interface{} {
 	var header *[]dpfm_api_output_formatter.Header
 	var item *[]dpfm_api_output_formatter.Item
-	var partner *[]dpfm_api_output_formatter.Partner
-	var address *[]dpfm_api_output_formatter.Address
+	var itemOperation *[]dpfm_api_output_formatter.ItemOperation
+	var itemOperationComponent *[]dpfm_api_output_formatter.ItemOperationComponent
 	for _, fn := range accepter {
 		switch fn {
 		case "Header":
 			header = c.headerUpdateSql(mtx, input, output, errs, log)
 		case "Item":
 			item = c.itemUpdateSql(mtx, input, output, errs, log)
-		case "Partner":
-			partner = c.partnerUpdateSql(mtx, input, output, errs, log)
-		case "Address":
-			address = c.addressUpdateSql(mtx, input, output, errs, log)
+		case "ItemOperation":
+			itemOperation = c.itemOperationUpdateSql(mtx, input, output, errs, log)
+		case "ItemOperationComponent":
+			itemOperationComponent = c.itemOperationComponentUpdateSql(mtx, input, output, errs, log)
 		default:
 
 		}
 	}
 
 	data := &dpfm_api_output_formatter.Message{
-		Header:  header,
-		Item:    item,
-		Partner: partner,
-		Address: address,
+		Header:  					header,
+		Item:    					item,
+		ItemOperation:				itemOperation,
+		ItemOperationComponent:		itemOperationComponent,
 	}
 
 	return data
@@ -102,9 +102,8 @@ func (c *DPFMAPICaller) headerCreateSql(
 		ctx = context.Background()
 	}
 	sessionID := input.RuntimeSessionID
-	// data_platform_delivery_document_header_dataの更新
 	for _, headerData := range *subfuncSDC.Message.Header {
-		res, err := c.rmq.SessionKeepRequest(ctx, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": headerData, "function": "DeliveryDocumentHeader", "runtime_session_id": sessionID})
+		res, err := c.rmq.SessionKeepRequest(ctx, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": headerData, "function": "OperationsHeader", "runtime_session_id": sessionID})
 		if err != nil {
 			err = xerrors.Errorf("rmq error: %w", err)
 			*errs = append(*errs, err)
@@ -144,9 +143,8 @@ func (c *DPFMAPICaller) itemCreateSql(
 		ctx = context.Background()
 	}
 	sessionID := input.RuntimeSessionID
-	// data_platform_delivery_document_item_dataの更新
 	for _, itemData := range *subfuncSDC.Message.Item {
-		res, err := c.rmq.SessionKeepRequest(ctx, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": itemData, "function": "DeliveryDocumentItem", "runtime_session_id": sessionID})
+		res, err := c.rmq.SessionKeepRequest(ctx, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": itemData, "function": "OperationsItem", "runtime_session_id": sessionID})
 		if err != nil {
 			err = xerrors.Errorf("rmq error: %w", err)
 			*errs = append(*errs, err)
@@ -173,7 +171,7 @@ func (c *DPFMAPICaller) itemCreateSql(
 	return data
 }
 
-func (c *DPFMAPICaller) partnerCreateSql(
+func (c *DPFMAPICaller) itemOperationCreateSql(
 	ctx context.Context,
 	mtx *sync.Mutex,
 	input *dpfm_api_input_reader.SDC,
@@ -181,14 +179,13 @@ func (c *DPFMAPICaller) partnerCreateSql(
 	subfuncSDC *sub_func_complementer.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *[]dpfm_api_output_formatter.Partner {
+) *[]dpfm_api_output_formatter.ItemOperation {
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	sessionID := input.RuntimeSessionID
-	// data_platform_delivery_document_partner_dataの更新
-	for _, partnerData := range *subfuncSDC.Message.Partner {
-		res, err := c.rmq.SessionKeepRequest(ctx, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": partnerData, "function": "DeliveryDocumentPartner", "runtime_session_id": sessionID})
+	for _, itemOperationData := range *subfuncSDC.Message.ItemOperation {
+		res, err := c.rmq.SessionKeepRequest(ctx, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": itemOperationData, "function": "OperationsItemOperation", "runtime_session_id": sessionID})
 		if err != nil {
 			err = xerrors.Errorf("rmq error: %w", err)
 			*errs = append(*errs, err)
@@ -197,7 +194,7 @@ func (c *DPFMAPICaller) partnerCreateSql(
 		res.Success()
 		if !checkResult(res) {
 			output.SQLUpdateResult = getBoolPtr(false)
-			output.SQLUpdateError = "Partner Data cannot insert"
+			output.SQLUpdateError = "ItemOperation Data cannot insert"
 			return nil
 		}
 	}
@@ -206,7 +203,7 @@ func (c *DPFMAPICaller) partnerCreateSql(
 		output.SQLUpdateResult = getBoolPtr(true)
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToPartnerCreates(subfuncSDC)
+	data, err := dpfm_api_output_formatter.ConvertToItemOperationCreates(subfuncSDC)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -215,7 +212,7 @@ func (c *DPFMAPICaller) partnerCreateSql(
 	return data
 }
 
-func (c *DPFMAPICaller) addressCreateSql(
+func (c *DPFMAPICaller) itemOperationComponentCreateSql(
 	ctx context.Context,
 	mtx *sync.Mutex,
 	input *dpfm_api_input_reader.SDC,
@@ -223,14 +220,13 @@ func (c *DPFMAPICaller) addressCreateSql(
 	subfuncSDC *sub_func_complementer.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *[]dpfm_api_output_formatter.Address {
+) *[]dpfm_api_output_formatter.ItemOperationComponent {
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	sessionID := input.RuntimeSessionID
-	// data_platform_delivery_document_address_dataの更新
-	for _, addressData := range *subfuncSDC.Message.Address {
-		res, err := c.rmq.SessionKeepRequest(ctx, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": addressData, "function": "DeliveryDocumentAddress", "runtime_session_id": sessionID})
+	for _, itemOperationComponentData := range *subfuncSDC.Message.ItemOperationComponent {
+		res, err := c.rmq.SessionKeepRequest(ctx, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": itemOperationComponentData, "function": "OperationsItemOperationComponent", "runtime_session_id": sessionID})
 		if err != nil {
 			err = xerrors.Errorf("rmq error: %w", err)
 			*errs = append(*errs, err)
@@ -239,7 +235,7 @@ func (c *DPFMAPICaller) addressCreateSql(
 		res.Success()
 		if !checkResult(res) {
 			output.SQLUpdateResult = getBoolPtr(false)
-			output.SQLUpdateError = "Address Data cannot insert"
+			output.SQLUpdateError = "ItemOperationComponent Data cannot insert"
 			return nil
 		}
 	}
@@ -248,7 +244,7 @@ func (c *DPFMAPICaller) addressCreateSql(
 		output.SQLUpdateResult = getBoolPtr(true)
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToAddressCreates(subfuncSDC)
+	data, err := dpfm_api_output_formatter.ConvertToItemOperationComponentCreates(subfuncSDC)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -269,7 +265,7 @@ func (c *DPFMAPICaller) headerUpdateSql(
 
 	sessionID := input.RuntimeSessionID
 	if headerIsUpdate(headerData) {
-		res, err := c.rmq.SessionKeepRequest(nil, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": headerData, "function": "DeliveryDocumentHeader", "runtime_session_id": sessionID})
+		res, err := c.rmq.SessionKeepRequest(nil, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": headerData, "function": "OperationsHeader", "runtime_session_id": sessionID})
 		if err != nil {
 			err = xerrors.Errorf("rmq error: %w", err)
 			*errs = append(*errs, err)
@@ -311,7 +307,7 @@ func (c *DPFMAPICaller) itemUpdateSql(
 		itemData := *dpfm_api_processing_formatter.ConvertToItemUpdates(header, item)
 
 		if itemIsUpdate(&itemData) {
-			res, err := c.rmq.SessionKeepRequest(nil, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": itemData, "function": "DeliveryDocumentItem", "runtime_session_id": sessionID})
+			res, err := c.rmq.SessionKeepRequest(nil, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": itemData, "function": "OperationsItem", "runtime_session_id": sessionID})
 			if err != nil {
 				err = xerrors.Errorf("rmq error: %w", err)
 				*errs = append(*errs, err)
@@ -340,22 +336,22 @@ func (c *DPFMAPICaller) itemUpdateSql(
 	return data
 }
 
-func (c *DPFMAPICaller) partnerUpdateSql(
+func (c *DPFMAPICaller) itemOperationUpdateSql(
 	mtx *sync.Mutex,
 	input *dpfm_api_input_reader.SDC,
 	output *dpfm_api_output_formatter.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *[]dpfm_api_output_formatter.Partner {
-	req := make([]dpfm_api_processing_formatter.PartnerUpdates, 0)
+) *[]dpfm_api_output_formatter.ItemOperation {
+	req := make([]dpfm_api_processing_formatter.ItemOperationUpdates, 0)
 	sessionID := input.RuntimeSessionID
 
 	header := input.Header
-	for _, partner := range header.Partner {
-		partnerData := *dpfm_api_processing_formatter.ConvertToPartnerUpdates(header, partner)
+	for _, itemOperation := range header.Item.ItemOperation {
+		itemOperationData := *dpfm_api_processing_formatter.ConvertToItemOperationUpdates(header, item)
 
-		if partnerIsUpdate(&partnerData) {
-			res, err := c.rmq.SessionKeepRequest(nil, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": partnerData, "function": "DeliveryDocumentPartner", "runtime_session_id": sessionID})
+		if itemOperationIsUpdate(&itemOperationData) {
+			res, err := c.rmq.SessionKeepRequest(nil, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": itemOperationData, "function": "OperationsItemOperation", "runtime_session_id": sessionID})
 			if err != nil {
 				err = xerrors.Errorf("rmq error: %w", err)
 				*errs = append(*errs, err)
@@ -364,18 +360,18 @@ func (c *DPFMAPICaller) partnerUpdateSql(
 			res.Success()
 			if !checkResult(res) {
 				output.SQLUpdateResult = getBoolPtr(false)
-				output.SQLUpdateError = "Partner Data cannot insert"
+				output.SQLUpdateError = "ItemOperation Data cannot insert"
 				return nil
 			}
 		}
-		req = append(req, partnerData)
+		req = append(req, itemOperationData)
 	}
 
 	if output.SQLUpdateResult == nil {
 		output.SQLUpdateResult = getBoolPtr(true)
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToPartnerUpdates(&req)
+	data, err := dpfm_api_output_formatter.ConvertToItemOperationUpdates(&req)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -384,22 +380,22 @@ func (c *DPFMAPICaller) partnerUpdateSql(
 	return data
 }
 
-func (c *DPFMAPICaller) addressUpdateSql(
+func (c *DPFMAPICaller) itemOperationComponentUpdateSql(
 	mtx *sync.Mutex,
 	input *dpfm_api_input_reader.SDC,
 	output *dpfm_api_output_formatter.SDC,
 	errs *[]error,
 	log *logger.Logger,
-) *[]dpfm_api_output_formatter.Address {
-	req := make([]dpfm_api_processing_formatter.AddressUpdates, 0)
+) *[]dpfm_api_output_formatter.ItemOperationComponent {
+	req := make([]dpfm_api_processing_formatter.ItemOperationComponentUpdates, 0)
 	sessionID := input.RuntimeSessionID
 
 	header := input.Header
-	for _, address := range header.Address {
-		addressData := *dpfm_api_processing_formatter.ConvertToAddressUpdates(header, address)
+	for _, itemComponentOperation := range header.Item.ItemOperation.ItemComponentOperation {
+		itemOperationComponentData := *dpfm_api_processing_formatter.ConvertToItemOperationComponentUpdates(header, item)
 
-		if addressIsUpdate(&addressData) {
-			res, err := c.rmq.SessionKeepRequest(nil, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": addressData, "function": "DeliveryDocumentAddress", "runtime_session_id": sessionID})
+		if itemOperationComponentIsUpdate(&itemOperationComponentData) {
+			res, err := c.rmq.SessionKeepRequest(nil, c.conf.RMQ.QueueToSQL()[0], map[string]interface{}{"message": itemOperationComponentData, "function": "OperationsItemOperationComponent", "runtime_session_id": sessionID})
 			if err != nil {
 				err = xerrors.Errorf("rmq error: %w", err)
 				*errs = append(*errs, err)
@@ -408,18 +404,18 @@ func (c *DPFMAPICaller) addressUpdateSql(
 			res.Success()
 			if !checkResult(res) {
 				output.SQLUpdateResult = getBoolPtr(false)
-				output.SQLUpdateError = "Address Data cannot insert"
+				output.SQLUpdateError = "ItemOperationComponent Data cannot insert"
 				return nil
 			}
 		}
-		req = append(req, addressData)
+		req = append(req, itemOperationComponentData)
 	}
 
 	if output.SQLUpdateResult == nil {
 		output.SQLUpdateResult = getBoolPtr(true)
 	}
 
-	data, err := dpfm_api_output_formatter.ConvertToAddressUpdates(&req)
+	data, err := dpfm_api_output_formatter.ConvertToItemOperationComponentUpdates(&req)
 	if err != nil {
 		*errs = append(*errs, err)
 		return nil
@@ -429,29 +425,32 @@ func (c *DPFMAPICaller) addressUpdateSql(
 }
 
 func headerIsUpdate(header *dpfm_api_processing_formatter.HeaderUpdates) bool {
-	deliveryDocument := header.DeliveryDocument
+	operations := header.Operations
 
-	return !(deliveryDocument == 0)
+	return !(operations == 0)
 }
 
 func itemIsUpdate(item *dpfm_api_processing_formatter.ItemUpdates) bool {
-	deliveryDocument := item.DeliveryDocument
-	deliveryDocumentItem := item.DeliveryDocumentItem
+	operations := item.Operations
+	operationsItem := item.OperationsItem
 
-	return !(deliveryDocument == 0 || deliveryDocumentItem == 0)
+	return !(operations == 0 || operationsItem == 0)
 }
 
-func partnerIsUpdate(partner *dpfm_api_processing_formatter.PartnerUpdates) bool {
-	deliveryDocument := partner.DeliveryDocument
-	partnerFunction := partner.PartnerFunction
-	businessPartner := partner.BusinessPartner
+func itemOperationIsUpdate(item *dpfm_api_processing_formatter.ItemOperationUpdates) bool {
+	operations := itemOperation.Operations
+	operationsItem := itemOperation.OperationsItem
+	operaionID := itemOperation.OperationID
 
-	return !(deliveryDocument == 0 || partnerFunction == "" || businessPartner == 0)
+	return !(operations == 0 || operationsItem == 0 || operaionID == 0)
 }
 
-func addressIsUpdate(address *dpfm_api_processing_formatter.AddressUpdates) bool {
-	deliveryDocument := address.DeliveryDocument
-	addressID := address.AddressID
+func itemOperationComponentIsUpdate(item *dpfm_api_processing_formatter.ItemOperationComponentUpdates) bool {
+	operations := itemOperationComponent.Operations
+	operationsItem := itemOperationComponent.OperationsItem
+	operaionID := itemOperationComponent.OperationID
+	billOfMaterial := itemOperationComponent.BillOfMaterial
+	billOfMaterialItem := itemOperationComponent.BillOfMaterialItem
 
-	return !(deliveryDocument == 0 || addressID == 0)
+	return !(operations == 0 || operationsItem == 0 || operaionID == 0 || billOfMaterial == 0 || billOfMaterialItem == 0)
 }

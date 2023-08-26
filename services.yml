@@ -2,38 +2,38 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    run: data-platform-api-delivery-document-creates-rmq-kube
-  name: data-platform-api-delivery-document-creates-rmq-kube
+    run: data-platform-api-operations-creates-rmq-kube
+  name: data-platform-api-operations-creates-rmq-kube
 spec:
   replicas: 1
   selector:
     matchLabels:
-      run: data-platform-api-delivery-document-creates-rmq-kube
-      app: DELIVERY_DOCUMENT
+      run: data-platform-api-operations-creates-rmq-kube
+      app: OPERATIONS
   template:
     metadata:
       labels:
-        run: data-platform-api-delivery-document-creates-rmq-kube
-        app: DELIVERY_DOCUMENT
+        run: data-platform-api-operations-creates-rmq-kube
+        app: OPERATIONS
     spec:
-      hostname: data-platform-api-delivery-document-creates-rmq-kube
+      hostname: data-platform-api-operations-creates-rmq-kube
       containers:
-        - name: data-platform-api-delivery-document-creates-rmq-kube
-          image: latonaio/data-platform-api-delivery-document-creates-rmq-kube
+        - name: data-platform-api-operations-creates-rmq-kube
+          image: latonaio/data-platform-api-operations-creates-rmq-kube
           imagePullPolicy: Always
           env:
             - name: "RMQ_QUEUE_FROM"
-              value: "data-platform-api-delivery-document-creates-queue"
+              value: "data-platform-api-operations-creates-queue"
             - name: "RMQ_QUEUE_TO_SQL"
               value: "sql-update-kube"
             - name: "RMQ_QUEUE_TO_EX_CONF"
               value: "data-platform-api-business-partner-exconf-queue,data-platform-api-business-partner-exconf-queue,data-platform-api-plant-exconf-queue"
             - name: "RMQ_QUEUE_TO_HEADERS_SUB_FUNC"
-              value: "data-platform-api-delivery-document-headers-creates-subfunc-queue"
+              value: "data-platform-api-operations-headers-creates-subfunc-queue"
             - name: "RMQ_QUEUE_TO_ITEMS_SUB_FUNC"
-              value: "data-platform-api-delivery-document-items-creates-subfunc-queue"
+              value: "data-platform-api-operations-items-creates-subfunc-queue"
             - name: "RMQ_SESSION_CONTROL_QUEUE"
-              value: "data-platform-api-delivery-document-creates-session-control-queue"
+              value: "data-platform-api-operations-creates-session-control-queue"
             - name: "MYSQL_DB_NAME"
               value: "DataPlatformCommonSettingsMysqlKube"
           envFrom:
@@ -46,11 +46,11 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    run: data-platform-api-delivery-document-creates-rmq-kube
-  name: data-platform-api-delivery-document-creates-rmq-kube
+    run: data-platform-api-operations-creates-rmq-kube
+  name: data-platform-api-operations-creates-rmq-kube
 spec:
   selector:
-    run: data-platform-api-delivery-document-creates-rmq-kube
+    run: data-platform-api-operations-creates-rmq-kube
   type: NodePort
   ports:
     - name: api

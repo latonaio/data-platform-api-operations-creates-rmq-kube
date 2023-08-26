@@ -1,4 +1,4 @@
-module data-platform-api-delivery-document-creates-rmq-kube
+module data-platform-api-operations-creates-rmq-kube
 
 go 1.20
 
